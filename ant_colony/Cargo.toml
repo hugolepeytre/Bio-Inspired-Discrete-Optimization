@@ -1,5 +1,5 @@
 [package]
-name = "GeneticAlgoProject3"
+name = "ant_colony"
 version = "0.1.0"
 authors = ["Hugo <hugo.lepeytre@gmail.com>"]
 edition = "2018"
