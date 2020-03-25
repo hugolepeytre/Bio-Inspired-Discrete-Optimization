@@ -1,6 +1,6 @@
-mod colony;
+mod swarm;
 mod job_list;
-mod ants;
+mod particles;
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -14,7 +14,7 @@ fn main() {
     if SINGLE {
         let beg = SystemTime::now();
         let jobs = read_input(format!("test_data/{}.txt", CHOSEN_PROBLEM + 1).as_str());
-        let solution = colony::run(&jobs);
+        let solution = swarm::run(&jobs);
         output(format!("test_data/{}_solution.txt", CHOSEN_PROBLEM + 1).as_str(), solution).expect("Problem");
         if let Ok(dur) = beg.elapsed() {
             println!("{}m{}s", dur.as_secs()/60, dur.as_secs()%60);
@@ -25,7 +25,7 @@ fn main() {
             let beg = SystemTime::now();
             println!("Problem {}", i);
             let jobs = read_input(format!("test_data/{}.txt", i + 1).as_str());
-            let solution = colony::run(&jobs);
+            let solution = swarm::run(&jobs);
             output(format!("test_data/{}_solution.txt", i + 1).as_str(), solution).expect("Problem");
             if let Ok(dur) = beg.elapsed() {
                 println!("{}m{}s", dur.as_secs()/60, dur.as_secs()%60);
