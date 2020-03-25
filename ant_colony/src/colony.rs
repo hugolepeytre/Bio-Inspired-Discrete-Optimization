@@ -1,18 +1,19 @@
 const GENERATIONS : usize = 1000;
-const ANTS : usize = 50;
+const ANTS : usize = 500;
 
 use crate::job_list::{Jobs, Ordering};
 use crate::ants::PheromoneMatrix;
 
 use std::usize::MAX;
 use rand::prelude::*;
+use rayon::prelude::*;
 
 pub fn run<'a>(jobs : &'a Jobs) -> Ordering<'a> {
     let mut best_solution : Ordering = Ordering::random(&jobs);
     let mut best_time = best_solution.end_time();
     let mut pheromones : PheromoneMatrix = PheromoneMatrix::init(jobs.n_machines(), jobs.n_jobs());
     for i in 0..GENERATIONS {
-        let solutions : Vec<_> = (0..ANTS).map(|_| construct_solution(&pheromones, &jobs)).collect();
+        let solutions : Vec<_> = (0..ANTS).into_par_iter().map(|_| construct_solution(&pheromones, &jobs)).collect();
         let avg = solutions.iter().fold(0, |acc, sol| acc + sol.end_time())/ANTS;
         for s in solutions {
             pheromones.update_edges(&s, best_time);
