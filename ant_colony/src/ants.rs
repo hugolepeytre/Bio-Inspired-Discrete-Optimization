@@ -1,4 +1,5 @@
 const EVAPORATION_RATE : f32 = 0.3;
+const ALPHA : f32 = 10.0;
 
 use crate::job_list::Ordering;
 

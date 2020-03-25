@@ -2,7 +2,7 @@ import plotly.figure_factory as ff
 import itertools as it
 import random
 
-pb_num = 0
+pb_num = 2
 update_everything = False
 
 
@@ -20,7 +20,7 @@ def update(num):
     colors = {}
     for i, line in enumerate(f):
         tmp = [map(lambda x: int(x), line.split())]*4
-        for task, job, start, end in it.zip_longest(*tmp):
+        for job, task, start, end in it.zip_longest(*tmp):
             key = 'Job {}'.format(job + 1)
             df.append(dict(Task='Machine {}'.format(i),
                            Start=start,

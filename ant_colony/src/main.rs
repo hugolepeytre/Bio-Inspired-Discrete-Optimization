@@ -12,13 +12,13 @@ const SINGLE : bool = false;
 fn main() {
     if SINGLE {
         let jobs = read_input(format!("test_data/{}.txt", CHOSEN_PROBLEM + 1).as_str());
-        let solution = colony::run(jobs);
+        let solution = colony::run(&jobs);
         output(format!("test_data/{}_solution.txt", CHOSEN_PROBLEM + 1).as_str(), solution).expect("Problem");
     }
     else {
         for i in 0..7 {
             let jobs = read_input(format!("test_data/{}.txt", i + 1).as_str());
-            let solution = colony::run(jobs);
+            let solution = colony::run(&jobs);
             output(format!("test_data/{}_solution.txt", i + 1).as_str(), solution).expect("Problem");
         }
     }
@@ -26,8 +26,6 @@ fn main() {
 
 fn read_input(path : &str) -> job_list::Jobs {
     let path = Path::new(path);
-    let disp = path.display();
-    println!("{}", disp);
 	
     let mut s = String::new();
     let mut file = match File::open(&path) {
