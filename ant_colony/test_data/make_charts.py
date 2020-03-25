@@ -2,7 +2,7 @@ import plotly.figure_factory as ff
 import itertools as it
 import random
 
-pb_num = 2
+pb_num = 0
 update_everything = True
 
 

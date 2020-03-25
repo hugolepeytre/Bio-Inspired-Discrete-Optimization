@@ -102,40 +102,41 @@ impl Ordering<'_> {
 
     fn generate_times(&self) -> Vec<(usize, usize)> {
         let mut times : Vec<(usize, usize)> = vec![(MAX, MAX); self.tasks_order.len()];
+        let ord = self.order_per_machines();
         for &(job, task) in &self.tasks_order {
-            self.get_time(job, task, &mut times);
+            self.get_time(job, task, &mut times, &ord);
         }
         return times
     }
 
-    fn get_time(&self, job : usize, task : usize, times : &mut Vec<(usize, usize)>) {
+    fn get_time(&self, job : usize, task : usize, times : &mut Vec<(usize, usize)>, ord : &Vec<(usize, usize)>) {
         let idx = job * self.n_machines + task;
         if times[idx] != (MAX, MAX) {return;}
         if self.jobs.processing_time(idx) == 0 {times[idx] = (0, 0);}
         let proc_time = self.jobs.processing_time(idx);
 
         let first_of_job = task == 0;
-        let first_of_machine = self.is_first_of_machine(job, task);
+        let first_of_machine = self.is_first_of_machine(job, task, ord);
         if first_of_job && first_of_machine {
             times[idx] = (0, proc_time);
         }
         else if first_of_job {
-            let (prev_job, prev_task) = self.get_previous_task_machine(job, task);
-            self.get_time(prev_job, prev_task, times);
+            let (prev_job, prev_task) = self.get_previous_task_machine(job, task, ord);
+            self.get_time(prev_job, prev_task, times, ord);
             let prev_end_time = times[prev_job * self.n_machines + prev_task].1;
             times[idx] = (prev_end_time, prev_end_time + proc_time);
         }
         else if first_of_machine {
             let (prev_job, prev_task) = self.get_previous_task_job(job, task);
-            self.get_time(prev_job, prev_task, times);
+            self.get_time(prev_job, prev_task, times, ord);
             let prev_end_time = times[prev_job * self.n_machines + prev_task].1;
             times[idx] = (prev_end_time, prev_end_time + proc_time);
         }
         else {
             let (prev_job1, prev_task1) = self.get_previous_task_job(job, task);
-            let (prev_job2, prev_task2) = self.get_previous_task_machine(job, task);
-            self.get_time(prev_job1, prev_task1, times);
-            self.get_time(prev_job2, prev_task2, times);
+            let (prev_job2, prev_task2) = self.get_previous_task_machine(job, task, ord);
+            self.get_time(prev_job1, prev_task1, times, ord);
+            self.get_time(prev_job2, prev_task2, times, ord);
             let prev_end_time = max(times[prev_job1 * self.n_machines + prev_task1].1, times[prev_job2 * self.n_machines + prev_task2].1);
             times[idx] = (prev_end_time, prev_end_time + proc_time);
         }
@@ -145,15 +146,23 @@ impl Ordering<'_> {
         return (job, task - 1)
     }
 
-    fn get_previous_task_machine(&self, job : usize, task : usize) -> (usize, usize) {
+    fn get_previous_task_machine(&self, job : usize, task : usize, ord : &Vec<(usize, usize)>) -> (usize, usize) {
         let machine_num = self.jobs.machine_for_task(job, task);
         let skip_num = machine_num * self.n_jobs;
-        let index = self.tasks_order.iter().skip(skip_num).take(self.n_jobs).position(|&pair| pair == (job, task)).unwrap() + skip_num - 1;
-        return self.tasks_order[index]
+        let index = ord.iter().skip(skip_num).take(self.n_jobs).position(|&pair| pair == (job, task)).unwrap() + skip_num - 1;
+        return ord[index]
     }
 
-    fn is_first_of_machine(&self, job : usize, task : usize) -> bool {
+    fn is_first_of_machine(&self, job : usize, task : usize, ord : &Vec<(usize, usize)>) -> bool {
         let machine_num = self.jobs.machine_for_task(job, task);
-        return self.tasks_order[machine_num * self.n_jobs] == (job, task)
+        return ord[machine_num * self.n_jobs] == (job, task)
+    }
+
+    fn order_per_machines(&self) -> Vec<(usize, usize)> {
+        let mut machine_list : Vec<Vec<(usize, usize)>> = vec![Vec::new(); self.jobs.n_machines()];
+        for &(job, task) in &self.tasks_order {
+            machine_list[self.jobs.machine_for_task(job, task)].push((job, task));
+        }
+        return machine_list.into_iter().flatten().collect()
     }
 }
