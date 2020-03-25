@@ -1,4 +1,4 @@
-const GENERATIONS : usize = 5000;
+const GENERATIONS : usize = 500;
 const ANTS : usize = 100;
 
 use crate::job_list::{Jobs, Ordering};
@@ -12,16 +12,16 @@ pub fn run<'a>(jobs : &'a Jobs) -> Ordering<'a> {
     let mut best_time = best_solution.end_time();
     let mut pheromones : PheromoneMatrix = PheromoneMatrix::init(jobs.n_machines(), jobs.n_jobs());
     for i in 0..GENERATIONS {
-        println!("Gen {}\n", i + 1);
         let solutions : Vec<_> = (0..ANTS).map(|_| construct_solution(&pheromones, &jobs)).collect();
         for s in solutions {
-            pheromones.update_edges(&s);
+            pheromones.update_edges(&s, best_time);
             let end_time = s.end_time();
             if best_time > end_time {
                 best_time = end_time;
                 best_solution = s;
             }
         }
+        println!("Gen {} : {}", i + 1, best_time);
     }
     return best_solution;
 }
@@ -48,7 +48,7 @@ fn choose_next_job(pheromones : &PheromoneMatrix, curr_next_tasks : &mut Vec<usi
         }
         else {
             pheromone_values.push(0.0);
-            0.0
+            acc
         }
     });
     let rand : f32 = rd.gen();
@@ -56,6 +56,9 @@ fn choose_next_job(pheromones : &PheromoneMatrix, curr_next_tasks : &mut Vec<usi
     let mut chosen_job = 0;
     let mut acc = 0.0;
     while acc <= threshold {
+        if chosen_job == pheromone_values.len() {
+            println!("Aie : threshold {} but total {}", threshold, total);
+        }
         acc = acc + pheromone_values[chosen_job];
         chosen_job = chosen_job + 1;
     }

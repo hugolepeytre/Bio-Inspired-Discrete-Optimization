@@ -6,7 +6,6 @@ pub struct Jobs {
     n_machines : usize,
     processing_times : Vec<usize>, // Processing time of task j from job i : [i * machines + j]
     machine_numbers : Vec<usize>, // Same as above but machine number
-    tasks_per_machines : Vec<usize>, // Which is machine i's task from job j
 }
 
 impl Jobs {
@@ -23,7 +22,7 @@ impl Jobs {
             let job_number = i / n_machines;
             tasks_per_machines[machine * n_jobs + job_number] = task_number;
         }
-        return Jobs {n_jobs, n_machines, processing_times, machine_numbers, tasks_per_machines}
+        return Jobs {n_jobs, n_machines, processing_times, machine_numbers}
     }
 
     pub fn n_jobs(&self) -> usize {
@@ -41,10 +40,6 @@ impl Jobs {
     pub fn machine_for_task(&self, job : usize, task : usize) -> usize {
         return self.machine_numbers[job * self.n_machines + task];
     }
-
-    pub fn task_for_machine(&self, job : usize, machine : usize) -> usize {
-        return self.tasks_per_machines[machine * self.n_jobs + job]
-    }
 }
 
 pub struct Ordering<'a> {
@@ -52,11 +47,14 @@ pub struct Ordering<'a> {
     n_machines : usize,
     n_jobs : usize,
     jobs : &'a Jobs,
+    end_time : usize,
 }
 
 impl Ordering<'_> {
     pub fn new(tasks_order : Vec<(usize, usize)>, jobs : &Jobs) -> Ordering {
-        return Ordering {tasks_order, n_machines : jobs.n_machines, n_jobs : jobs.n_jobs, jobs}
+        let mut tmp_ord = Ordering {tasks_order, n_machines : jobs.n_machines, n_jobs : jobs.n_jobs, jobs, end_time : 0};
+        tmp_ord.end_time = tmp_ord.eval();
+        return tmp_ord
     }
 
     pub fn random(jobs : &Jobs) -> Ordering {
@@ -76,6 +74,10 @@ impl Ordering<'_> {
     }
 
     pub fn end_time(&self) -> usize {
+        return self.end_time;
+    }
+
+    pub fn eval(&self) -> usize {
         let mut max_time = 0;
         let all_times = self.generate_times();
         for i in 0..self.n_jobs {
@@ -158,7 +160,7 @@ impl Ordering<'_> {
         return ord[machine_num * self.n_jobs] == (job, task)
     }
 
-    fn order_per_machines(&self) -> Vec<(usize, usize)> {
+    pub fn order_per_machines(&self) -> Vec<(usize, usize)> {
         let mut machine_list : Vec<Vec<(usize, usize)>> = vec![Vec::new(); self.jobs.n_machines()];
         for &(job, task) in &self.tasks_order {
             machine_list[self.jobs.machine_for_task(job, task)].push((job, task));

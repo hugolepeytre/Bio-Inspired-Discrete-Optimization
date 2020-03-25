@@ -5,22 +5,31 @@ mod ants;
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
+use std::time::SystemTime;
 
-const CHOSEN_PROBLEM : usize = 0;
-const SINGLE : bool = false;
+const CHOSEN_PROBLEM : usize = 1;
+const SINGLE : bool = true;
 
 fn main() {
     if SINGLE {
+        let beg = SystemTime::now();
         let jobs = read_input(format!("test_data/{}.txt", CHOSEN_PROBLEM + 1).as_str());
         let solution = colony::run(&jobs);
         output(format!("test_data/{}_solution.txt", CHOSEN_PROBLEM + 1).as_str(), solution).expect("Problem");
+        if let Ok(dur) = beg.elapsed() {
+            println!("{}m{}s", dur.as_secs()/60, dur.as_secs()%60);
+        }
     }
     else {
         for i in 0..7 {
+            let beg = SystemTime::now();
             println!("Problem {}", i);
             let jobs = read_input(format!("test_data/{}.txt", i + 1).as_str());
             let solution = colony::run(&jobs);
             output(format!("test_data/{}_solution.txt", i + 1).as_str(), solution).expect("Problem");
+            if let Ok(dur) = beg.elapsed() {
+                println!("{}m{}s", dur.as_secs()/60, dur.as_secs()%60);
+            }
         }
     }
 }
