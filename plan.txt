@@ -26,3 +26,6 @@ Which means we would have a search space of dimension n*m.
 
 Generations :
 300 indiv, 5000 generations
+
+Questions :
+Ants : Constants ? Capping pheromone value ? How to get it better ?
