@@ -47,7 +47,7 @@ impl Ordering<'_> {
     }
 
     pub fn random(jobs : &Jobs) -> Ordering {
-        let tasks_order : Vec<(usize, usize)> = (0..jobs.n_jobs()*jobs.n_machines()).map(|i| (i/jobs.n_jobs(), i%jobs.n_machines())).collect();
+        let tasks_order : Vec<(usize, usize)> = (0..jobs.n_jobs()*jobs.n_machines()).map(|i| (i%jobs.n_jobs(), i/jobs.n_jobs())).collect();
         return Self::new(tasks_order, jobs)
     }
 
@@ -89,6 +89,7 @@ impl Ordering<'_> {
     fn get_time(&self, job : usize, task : usize, times : &mut Vec<(usize, usize)>, ord : &Vec<(usize, usize)>) {
         // TODO : penser à rappeler get_time
         // TODO : si un job prend 0 temps, il commence et finit à 0
+        // TODO : Mettre n_machines en attribut
         let idx = job * self.jobs.n_machines() + task;
         if times[idx] != (MAX, MAX) {return;}
         let proc_time = self.jobs.processing_time(idx);
@@ -100,17 +101,21 @@ impl Ordering<'_> {
         }
         else if first_of_job {
             let (prev_job, prev_task) = self.get_previous_task_machine(job, task, ord);
+            self.get_time(prev_job, prev_task, times, ord);
             let prev_end_time = times[prev_job * self.jobs.n_machines() + prev_task].1;
             times[idx] = (prev_end_time, prev_end_time + proc_time);
         }
         else if first_of_machine {
             let (prev_job, prev_task) = self.get_previous_task_job(job, task);
+            self.get_time(prev_job, prev_task, times, ord);
             let prev_end_time = times[prev_job * self.jobs.n_machines() + prev_task].1;
             times[idx] = (prev_end_time, prev_end_time + proc_time);
         }
         else {
             let (prev_job1, prev_task1) = self.get_previous_task_job(job, task);
             let (prev_job2, prev_task2) = self.get_previous_task_machine(job, task, ord);
+            self.get_time(prev_job1, prev_task1, times, ord);
+            self.get_time(prev_job2, prev_task2, times, ord);
             let prev_end_time = max(times[prev_job1 * self.jobs.n_machines() + prev_task1].1, times[prev_job2 * self.jobs.n_machines() + prev_task2].1);
             times[idx] = (prev_end_time, prev_end_time + proc_time);
         }
@@ -123,13 +128,13 @@ impl Ordering<'_> {
     fn get_previous_task_machine(&self, job : usize, task : usize, ord : &Vec<(usize, usize)>) -> (usize, usize) {
         let machine_num = self.jobs.machine_for_task(job, task);
         let skip_num = machine_num * self.jobs.n_jobs();
-        let index = ord.iter().skip(skip_num).take(self.jobs.n_machines()).position(|&pair| pair == (job, task)).unwrap() + skip_num - 1;
+        let index = ord.iter().skip(skip_num).take(self.jobs.n_jobs()).position(|&pair| pair == (job, task)).unwrap() + skip_num - 1;
         return ord[index]
     }
 
     fn is_first_of_machine(&self, job : usize, task : usize, ord : &Vec<(usize, usize)>) -> bool {
         let machine_num = self.jobs.machine_for_task(job, task);
-        return ord[machine_num * self.jobs.n_machines()] == (job, task)
+        return ord[machine_num * self.jobs.n_jobs()] == (job, task)
     }
 
     fn order_per_machines(&self) -> Vec<(usize, usize)> {

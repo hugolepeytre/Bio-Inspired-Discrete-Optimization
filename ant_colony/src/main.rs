@@ -17,6 +17,7 @@ fn main() {
     }
     else {
         for i in 0..7 {
+            println!("Problem {}", i);
             let jobs = read_input(format!("test_data/{}.txt", i + 1).as_str());
             let solution = colony::run(&jobs);
             output(format!("test_data/{}_solution.txt", i + 1).as_str(), solution).expect("Problem");
