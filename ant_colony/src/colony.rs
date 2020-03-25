@@ -12,11 +12,11 @@ pub fn run<'a>(jobs : &'a Jobs) -> Ordering<'a> {
         let solutions : Vec<_> = (0..ANTS).map(|_| construct_solution(&pheromones, &jobs)).collect();
         for s in solutions {
             pheromones.update_edges(&s);
-            // let end_time = s.end_time();
-            // if best_time > end_time {
-            //     best_time = end_time;
-            //     best_solution = s;
-            // }
+            let end_time = s.end_time();
+            if best_time > end_time {
+                best_time = end_time;
+                best_solution = s;
+            }
         }
     }
     return best_solution;
