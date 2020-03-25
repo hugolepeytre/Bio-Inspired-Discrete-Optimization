@@ -4,6 +4,7 @@ const ALPHA : f32 = 10.0;
 use crate::job_list::Ordering;
 
 use std::cmp::{max, min};
+use std::usize::MAX;
 
 pub struct PheromoneMatrix {
     n_tasks : usize,
@@ -22,13 +23,19 @@ impl PheromoneMatrix {
         return PheromoneMatrix {n_jobs, n_tasks, n_nodes, pheromones, subgraph_size}
     }
 
-    pub fn get_pheromones(&self, task1 : usize, task2 : usize, machine_num : usize) -> f32 {
-        let t1 = max(task1, task2);
-        let t2 = min(task1, task2);
-        let idx_main = t1 * self.n_jobs - (t1 * (t1 + 1)/2);
-        let idx_sub = t2 - t1 - 1;
-        let idx = idx_main + idx_sub;
-        return self.pheromones[self.subgraph_size * machine_num + idx];
+    pub fn get_pheromones(&self, job1 : usize, job2 : usize, machine_num : usize) -> f32 {
+        let j1 = min(job1, job2);
+        let j2 = max(job1, job2);
+        if j2 == MAX {
+            return self.pheromones[self.subgraph_size * machine_num + j1]
+        }
+        else {
+            let idx_main = (j1 + 1) * self.n_jobs - (j1 * (j1 + 1)/2);
+            println!("{} {}\n", j1, j2);
+            let idx_sub = (j2 - j1) - 1;
+            let idx = idx_main + idx_sub;
+            return self.pheromones[self.subgraph_size * machine_num + idx];
+        }
     }
 
     pub fn update_edges(&mut self, sol : &Ordering) {

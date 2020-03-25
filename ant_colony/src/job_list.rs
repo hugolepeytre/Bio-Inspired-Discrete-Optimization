@@ -6,18 +6,24 @@ pub struct Jobs {
     n_machines : usize,
     processing_times : Vec<usize>, // Processing time of task j from job i : [i * machines + j]
     machine_numbers : Vec<usize>, // Same as above but machine number
-    task_from_machine : Vec<usize>, // Which is machine i's task from job j
+    tasks_per_machines : Vec<usize>, // Which is machine i's task from job j
 }
 
 impl Jobs {
     pub fn init(machines_and_times : Vec<(usize, usize)>, n_machines : usize, n_jobs : usize) -> Jobs {
         let mut processing_times = Vec::new();
         let mut machine_numbers = Vec::new();
+        let mut tasks_per_machines = vec![0; n_machines*n_jobs];
         for (machine, duration) in machines_and_times {
             processing_times.push(duration);
             machine_numbers.push(machine);
         }
-        return Jobs {n_jobs, n_machines, processing_times, machine_numbers}
+        for (i, &machine) in machine_numbers.iter().enumerate() {
+            let task_number = i % n_machines;
+            let job_number = i / n_machines;
+            tasks_per_machines[machine * n_jobs + job_number] = task_number;
+        }
+        return Jobs {n_jobs, n_machines, processing_times, machine_numbers, tasks_per_machines}
     }
 
     pub fn n_jobs(&self) -> usize {
@@ -33,7 +39,11 @@ impl Jobs {
     }
 
     pub fn machine_for_task(&self, job : usize, task : usize) -> usize {
-        return self.machine_numbers[job * self.n_machines() + task];
+        return self.machine_numbers[job * self.n_machines + task];
+    }
+
+    pub fn task_for_machine(&self, job : usize, machine : usize) -> usize {
+        return self.tasks_per_machines[machine * self.n_jobs + job]
     }
 }
 
@@ -99,7 +109,6 @@ impl Ordering<'_> {
     }
 
     fn get_time(&self, job : usize, task : usize, times : &mut Vec<(usize, usize)>) {
-        println!("{} {} {} \n", job, self.n_machines, task);
         let idx = job * self.n_machines + task;
         if times[idx] != (MAX, MAX) {return;}
         if self.jobs.processing_time(idx) == 0 {times[idx] = (0, 0);}

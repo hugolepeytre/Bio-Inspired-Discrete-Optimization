@@ -5,6 +5,7 @@ use crate::job_list::{Jobs, Ordering};
 use crate::ants::PheromoneMatrix;
 
 use std::usize::MAX;
+use rand::prelude::*;
 
 pub fn run<'a>(jobs : &'a Jobs) -> Ordering<'a> {
     let mut best_solution : Ordering = Ordering::random(&jobs);
@@ -25,22 +26,37 @@ pub fn run<'a>(jobs : &'a Jobs) -> Ordering<'a> {
 }
 
 fn construct_solution<'a>(pheromones : &PheromoneMatrix, jobs : &'a Jobs) -> Ordering<'a> {
-    // TODO implement
-    let solution : Vec<(usize, usize)> = (0..jobs.n_machines()).map(|n_machine| {
+    let solution : Vec<(usize, usize)> = (0..jobs.n_machines()).map(|machine_num| {
         let mut current_job = MAX;
-        let jobs_left : Vec<usize> = (0..jobs.n_jobs()).collect();
+        let mut jobs_left : Vec<usize> = (0..jobs.n_jobs()).collect();
         let mut job_order = Vec::new();
         while !jobs_left.is_empty() {
-            current_job = choose_next_job(pheromones, current_job, &jobs_left);
-            job_order.push(current_job);
-            jobs_left.remove(current_job);
+            current_job = choose_next_job(pheromones, current_job, &jobs_left, machine_num);
+            let task_num = jobs.task_for_machine(current_job, machine_num);
+            job_order.push((current_job, task_num));
+            let p = jobs_left.iter().position(|&j| j == current_job).unwrap();
+            jobs_left.remove(p);
         }
         job_order
     }).flatten().collect();
     return Ordering::new(solution, jobs);
 }
 
-fn choose_next_job(pheromones : &PheromoneMatrix, curr_job : usize, jobs_left : &Vec<usize>) -> usize{
-    // TODO : Implement
-    return 0
+fn choose_next_job(pheromones : &PheromoneMatrix, curr_job : usize, jobs_left : &Vec<usize>, machine_num : usize) -> usize {
+    let mut rd = thread_rng();
+    let mut pheromone_values = Vec::new();
+    let total = jobs_left.into_iter().fold(0.0, |acc, &job| {
+        let p_v = pheromones.get_pheromones(curr_job, job, machine_num);
+        pheromone_values.push(p_v); 
+        acc + p_v
+    });
+    let rand : f32 = rd.gen();
+    let threshold : f32 = total * rand;
+    let mut chosen_job = 0;
+    let mut acc = 0.0;
+    while acc <= threshold {
+        acc = acc + pheromone_values[chosen_job];
+        chosen_job = chosen_job + 1;
+    }
+    return jobs_left[chosen_job - 1]
 }
