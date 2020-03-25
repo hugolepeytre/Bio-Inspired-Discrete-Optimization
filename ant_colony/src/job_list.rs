@@ -6,6 +6,7 @@ pub struct Jobs {
     n_machines : usize,
     processing_times : Vec<usize>, // Processing time of task j from job i : [i * machines + j]
     machine_numbers : Vec<usize>, // Same as above but machine number
+    task_from_machine : Vec<usize>, // Which is machine i's task from job j
 }
 
 impl Jobs {

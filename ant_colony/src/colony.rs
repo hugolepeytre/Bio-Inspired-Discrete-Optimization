@@ -4,6 +4,8 @@ const ANTS : usize = 100;
 use crate::job_list::{Jobs, Ordering};
 use crate::ants::PheromoneMatrix;
 
+use std::usize::MAX;
+
 pub fn run<'a>(jobs : &'a Jobs) -> Ordering<'a> {
     let mut best_solution : Ordering = Ordering::random(&jobs);
     let mut best_time = best_solution.end_time();
@@ -24,5 +26,21 @@ pub fn run<'a>(jobs : &'a Jobs) -> Ordering<'a> {
 
 fn construct_solution<'a>(pheromones : &PheromoneMatrix, jobs : &'a Jobs) -> Ordering<'a> {
     // TODO implement
-    return Ordering::new(Vec::new(), jobs);
+    let solution : Vec<(usize, usize)> = (0..jobs.n_machines()).map(|n_machine| {
+        let mut current_job = MAX;
+        let jobs_left : Vec<usize> = (0..jobs.n_jobs()).collect();
+        let mut job_order = Vec::new();
+        while !jobs_left.is_empty() {
+            current_job = choose_next_job(pheromones, current_job, &jobs_left);
+            job_order.push(current_job);
+            jobs_left.remove(current_job);
+        }
+        job_order
+    }).flatten().collect();
+    return Ordering::new(solution, jobs);
+}
+
+fn choose_next_job(pheromones : &PheromoneMatrix, curr_job : usize, jobs_left : &Vec<usize>) -> usize{
+    // TODO : Implement
+    return 0
 }

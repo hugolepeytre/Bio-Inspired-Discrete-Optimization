@@ -17,7 +17,7 @@ pub struct PheromoneMatrix {
 impl PheromoneMatrix {
     pub fn init(n_tasks : usize, n_jobs : usize) -> PheromoneMatrix {
         let n_nodes = n_tasks*n_jobs;
-        let pheromones = vec![0.0; n_nodes*n_nodes];
+        let pheromones = vec![1.0; n_nodes*n_nodes];
         let subgraph_size = n_jobs * (n_jobs - 1)/2;
         return PheromoneMatrix {n_jobs, n_tasks, n_nodes, pheromones, subgraph_size}
     }
