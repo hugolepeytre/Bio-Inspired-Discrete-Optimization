@@ -167,4 +167,8 @@ impl Ordering<'_> {
         }
         return machine_list.into_iter().flatten().collect()
     }
+
+    pub fn tasks_order(&self) -> Vec<(usize, usize)> {
+        return self.tasks_order.clone()
+    }
 }

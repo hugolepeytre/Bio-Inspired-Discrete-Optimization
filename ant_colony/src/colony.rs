@@ -1,5 +1,7 @@
 const GENERATIONS : usize = 1000;
-const ANTS : usize = 500;
+const RESET_TIMER : usize = 300;
+const ANTS : usize = 1500;
+const N_BEST : usize = 10;
 
 use crate::job_list::{Jobs, Ordering};
 use crate::ants::PheromoneMatrix;
@@ -10,19 +12,28 @@ use rayon::prelude::*;
 
 pub fn run<'a>(jobs : &'a Jobs) -> Ordering<'a> {
     let mut best_solution : Ordering = Ordering::random(&jobs);
-    let mut best_time = best_solution.end_time();
+    // let mut best_time = best_solution.end_time();
+    let mut best_time = MAX;
     let mut pheromones : PheromoneMatrix = PheromoneMatrix::init(jobs.n_machines(), jobs.n_jobs());
     for i in 0..GENERATIONS {
-        let solutions : Vec<_> = (0..ANTS).into_par_iter().map(|_| construct_solution(&pheromones, &jobs)).collect();
-        let avg = solutions.iter().fold(0, |acc, sol| acc + sol.end_time())/ANTS;
-        for s in solutions {
-            pheromones.update_edges(&s, best_time);
-            let end_time = s.end_time();
-            if best_time > end_time {
-                best_time = end_time;
-                best_solution = s;
-            }
+        if i % RESET_TIMER == 0 {
+            pheromones.reset();
         }
+        let mut solutions : Vec<_> = (0..ANTS).into_par_iter().map(|_| construct_solution(&pheromones, &jobs)).collect();
+        let avg = solutions.iter().fold(0, |acc, sol| acc + sol.end_time())/ANTS;
+        pheromones.evaporation();
+        solutions.sort_by(|s1, s2| s1.end_time().cmp(&s2.end_time()));
+        // for i in 0..N_BEST {
+        //     println!("{}", solutions[i].end_time());
+        //     pheromones.update_edges(&solutions[i], best_time)
+        // }
+        pheromones.update_edges(&best_solution, best_time);
+        let possible_new_best = solutions.remove(0);
+        if possible_new_best.end_time() < best_time {
+            best_solution = possible_new_best;
+            best_time = best_solution.end_time();
+        }
+        // pheromones.print();
         println!("Gen {} : {}, {}", i + 1, best_time, avg);
     }
     return best_solution;
@@ -58,9 +69,6 @@ fn choose_next_job(pheromones : &PheromoneMatrix, curr_next_tasks : &mut Vec<usi
     let mut chosen_job = 0;
     let mut acc = 0.0;
     while acc <= threshold {
-        if chosen_job == pheromone_values.len() {
-            println!("Aie : threshold {} but total {}", threshold, total);
-        }
         acc = acc + pheromone_values[chosen_job];
         chosen_job = chosen_job + 1;
     }

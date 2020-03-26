@@ -28,4 +28,4 @@ Generations :
 300 indiv, 5000 generations
 
 Questions :
-Ants : Constants ? Capping pheromone value ? How to get it better ?
+One working config : Only all-time best ant add pheromone. Params - Gen : 1000, Reset : 300, Ants : 1500, Evaporation : 0.1, Alpha : 2000, Pow : useless
