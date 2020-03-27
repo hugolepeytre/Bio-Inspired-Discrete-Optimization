@@ -1,5 +1,5 @@
 [package]
-name = "ant_colony"
+name = "particle_swarm"
 version = "0.1.0"
 authors = ["Hugo <hugo.lepeytre@gmail.com>"]
 edition = "2018"
@@ -8,4 +8,5 @@ edition = "2018"
 
 [dependencies]
 rand = "0.7.3"
+itertools = "0.9.0"
 rayon = "1.3.0"

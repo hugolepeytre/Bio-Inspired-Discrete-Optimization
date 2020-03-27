@@ -8,25 +8,25 @@ use std::path::Path;
 use std::time::SystemTime;
 
 const CHOSEN_PROBLEM : usize = 1;
-const SINGLE : bool = true;
+const SINGLE : bool = false;
 
 fn main() {
     if SINGLE {
         let beg = SystemTime::now();
-        let jobs = read_input(format!("test_data/{}.txt", CHOSEN_PROBLEM + 1).as_str());
+        let jobs = read_input(format!("test_data/{}.txt", CHOSEN_PROBLEM).as_str());
         let solution = swarm::run(&jobs);
-        output(format!("test_data/{}_solution.txt", CHOSEN_PROBLEM + 1).as_str(), solution).expect("Problem");
+        output(format!("test_data/{}_solution.txt", CHOSEN_PROBLEM).as_str(), solution).expect("Ouille");
         if let Ok(dur) = beg.elapsed() {
             println!("{}m{}s", dur.as_secs()/60, dur.as_secs()%60);
         }
     }
     else {
-        for i in 0..7 {
+        for i in 1..=7 {
             let beg = SystemTime::now();
             println!("Problem {}", i);
-            let jobs = read_input(format!("test_data/{}.txt", i + 1).as_str());
+            let jobs = read_input(format!("test_data/{}.txt", i).as_str());
             let solution = swarm::run(&jobs);
-            output(format!("test_data/{}_solution.txt", i + 1).as_str(), solution).expect("Problem");
+            output(format!("test_data/{}_solution.txt", i).as_str(), solution).expect("Ouille");
             if let Ok(dur) = beg.elapsed() {
                 println!("{}m{}s", dur.as_secs()/60, dur.as_secs()%60);
             }

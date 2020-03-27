@@ -57,22 +57,6 @@ impl Ordering<'_> {
         return tmp_ord
     }
 
-    pub fn random(jobs : &Jobs) -> Ordering {
-        let tasks_order : Vec<(usize, usize)> = (0..jobs.n_machines()).map( |m_num|
-            (0..jobs.n_jobs()*jobs.n_machines()).map(move |i| {
-                let job = i%jobs.n_jobs();
-                let task = i/jobs.n_jobs();
-                if jobs.machine_for_task(job, task) == m_num {
-                    (job, task)
-                }
-                else {
-                    (MAX, MAX)
-                }
-            })
-        ).flatten().filter(|&p| p != (MAX, MAX)).collect();
-        return Self::new(tasks_order, jobs)
-    }
-
     pub fn end_time(&self) -> usize {
         return self.end_time;
     }
