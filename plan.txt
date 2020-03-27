@@ -1,31 +1,6 @@
-Swarm Particle : https://en.wikipedia.org/wiki/Particle_swarm_optimization
-Moves in a multi-dimensional real search space, so we need to map the problem to real numbers
 Constants are : attractivity to global best, attractivity to personal best, speed multiplier, pop size
 Extensions : APSO, having particls communicate only in overlapping subsets
 
-Ant Colony : https://en.wikipedia.org/wiki/Ant_colony_optimization_algorithms
-Problem has to be converted to shortest-path in weighted graph
-Then use pheromones
-
-
-Intermediate representation : For each machine, the order in which it will execute its task for each job
-Then the schedule builder derives a precise schedule for it by deducing optimal start and end times respecting the order
-
-Ant/Graph representation : Each node represents adding giving some machine some task on some job. Starting from node of an
-empty solution, you add jobs to the list one by one until you have a schedule.
-Would mean we have m*n steps, but a gigantic number of nodes, since we have 1 -> m -> m*m-1 -> ... -> m!. Actually it's a much bigger representation than
-the last one. But we only have at most m edges going out of a node.
-
-Or : have empty node -> order from machine one -> intermediary common node -> order from machine 2 -> ... -> order for machine n
-Would mean we have lots of edges (m!) going out of each intermediary node, but only n choices to make
-
-
-Particle/real vector representation : Have n vectors of dimension m, each representing a machine. Then for each machine, the order of tasks is the
-order of increasing values, with index i representing task i.
-Which means we would have a search space of dimension n*m.
-
-Generations :
-300 indiv, 5000 generations
-
-Questions :
 One working config : Only all-time best ant add pheromone. Params - Gen : 1000, Reset : 300, Ants : 1500, Evaporation : 0.1, Alpha : 2000, Pow : useless
+Questions :
+Should I use extensions for either ?
