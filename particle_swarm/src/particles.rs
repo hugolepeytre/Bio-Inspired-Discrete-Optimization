@@ -1,11 +1,11 @@
-const GENERATIONS : usize = 3000;
-const PARTICLES : usize = 100;
+const GENERATIONS : usize = 50000;
+const PARTICLES : usize = 75;
 
 const B_LOW : f32 = 0.0;
 const B_UP : f32 = 2.0;
 const SPAN : f32 = B_UP - B_LOW;
 const SPEED_PERSISTENCE_BEGIN : f32 = 0.9;
-const SPEED_PERSISTENCE_END : f32 = 0.4;
+const SPEED_PERSISTENCE_END : f32 = 0.35;
 const G_BEST_ATTRACT : f32 = 2.0;
 const SELF_BEST_ATTRACT : f32 = 2.0;
 
@@ -44,7 +44,9 @@ impl Swarm {
 
     pub fn run(&mut self, jobs : &Jobs) {
         for i in 0..GENERATIONS {
-            self.speed_persistence = ((GENERATIONS-i) as f32*SPEED_PERSISTENCE_BEGIN + i as f32*SPEED_PERSISTENCE_END)/GENERATIONS as f32;
+            if i > GENERATIONS/5 {
+                self.speed_persistence = ((GENERATIONS-i) as f32*SPEED_PERSISTENCE_BEGIN + i as f32*SPEED_PERSISTENCE_END)/GENERATIONS as f32;
+            }
             self.step(jobs);
             println!("Gen {} : {}", i + 1, self.best_time());
         }

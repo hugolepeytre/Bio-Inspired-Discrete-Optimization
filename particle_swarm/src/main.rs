@@ -8,7 +8,7 @@ use std::path::Path;
 use std::time::SystemTime;
 
 const CHOSEN_PROBLEM : usize = 6;
-const SINGLE : bool = true;
+const SINGLE : bool = false;
 
 fn main() {
     if SINGLE {
