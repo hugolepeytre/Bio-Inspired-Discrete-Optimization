@@ -1,6 +1,6 @@
 const EVAPORATION_RATE : f32 = 0.1;
 const PERSISTENCE_RATE : f32 = 1.0 - EVAPORATION_RATE;
-const ALPHA : f32 = 2000.0;
+const ALPHA : f32 = 2500.0;
 const PH_POW : f32 = 1.0;
 
 use crate::job_list::Ordering;

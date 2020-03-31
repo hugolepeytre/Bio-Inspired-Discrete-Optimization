@@ -7,8 +7,8 @@ use std::io::prelude::*;
 use std::path::Path;
 use std::time::SystemTime;
 
-const CHOSEN_PROBLEM : usize = 5;
-const SINGLE : bool = false;
+const CHOSEN_PROBLEM : usize = 6;
+const SINGLE : bool = true;
 
 fn main() {
     if SINGLE {

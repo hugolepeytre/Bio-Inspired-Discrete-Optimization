@@ -1,6 +1,6 @@
-const GENERATIONS : usize = 1000;
+const GENERATIONS : usize = 1200;
 const RESET_TIMER : usize = 300;
-const ANTS : usize = 1500;
+const ANTS : usize = 2000;
 const N_BEST : usize = 10;
 
 use crate::job_list::{Jobs, Ordering};

@@ -4,10 +4,10 @@ const PARTICLES : usize = 75;
 const B_LOW : f32 = 0.0;
 const B_UP : f32 = 2.0;
 const SPAN : f32 = B_UP - B_LOW;
-const SPEED_PERSISTENCE_BEGIN : f32 = 0.9;
+const SPEED_PERSISTENCE_BEGIN : f32 = 0.95;
 const SPEED_PERSISTENCE_END : f32 = 0.35;
-const G_BEST_ATTRACT : f32 = 2.0;
-const SELF_BEST_ATTRACT : f32 = 2.0;
+const G_BEST_ATTRACT : f32 = 1.5;
+const SELF_BEST_ATTRACT : f32 = 2.5;
 
 use crate::job_list::{Ordering, Jobs};
 
