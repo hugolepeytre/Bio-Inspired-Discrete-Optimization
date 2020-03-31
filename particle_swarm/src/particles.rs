@@ -1,9 +1,9 @@
 const B_LOW : f32 = 0.0;
-const B_UP : f32 = 10.0;
+const B_UP : f32 = 2.0;
 const SPAN : f32 = B_UP - B_LOW;
-const SPEED_PERSISTENCE : f32 = 0.7;
-const G_BEST_ATTRACT : f32 = 10.0;
-const SELF_BEST_ATTRACT : f32 = 12.0;
+const SPEED_PERSISTENCE : f32 = 0.9;
+const G_BEST_ATTRACT : f32 = 2.0;
+const SELF_BEST_ATTRACT : f32 = 2.0;
 
 use crate::job_list::{Ordering, Jobs};
 
@@ -39,12 +39,18 @@ impl Swarm {
 
     pub fn step(&mut self, j : &Jobs) {
         for i in 0..self.particles.len() {
+            let mut tmp_best_pos = self.best_pos.clone();
+            let mut tmp_best_time = self.best_time;
+            let mut tmp_best_part = self.best_part;
             let new_p_best = self.particles[i].step(j, &self.best_pos);
-            if new_p_best < self.best_time {
-                self.best_part = i;
-                self.best_time = new_p_best;
-                self.best_pos = self.particles[i].best_pos();
+            if new_p_best < tmp_best_time {
+                tmp_best_part = i;
+                tmp_best_time = new_p_best;
+                tmp_best_pos = self.particles[i].best_pos();
             }
+            self.best_pos = tmp_best_pos;
+            self.best_part = tmp_best_part;
+            self.best_time = tmp_best_time;
         }
     }
 

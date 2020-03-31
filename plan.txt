@@ -1,6 +1,0 @@
-Constants are : attractivity to global best, attractivity to personal best, speed multiplier, pop size
-Extensions : APSO, having particls communicate only in overlapping subsets
-
-One working config : Only all-time best ant add pheromone. Params - Gen : 1000, Reset : 300, Ants : 1500, Evaporation : 0.1, Alpha : 2000, Pow : useless
-Questions :
-Should I use extensions for either ?

@@ -1,5 +1,5 @@
-const GENERATIONS : usize = 1000;
-const PARTICLES : usize = 500;
+const GENERATIONS : usize = 300;
+const PARTICLES : usize = 100;
 
 use crate::job_list::{Jobs, Ordering};
 use crate::particles::Swarm;
