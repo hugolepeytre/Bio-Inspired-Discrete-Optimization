@@ -1,7 +1,11 @@
+const GENERATIONS : usize = 3000;
+const PARTICLES : usize = 100;
+
 const B_LOW : f32 = 0.0;
 const B_UP : f32 = 2.0;
 const SPAN : f32 = B_UP - B_LOW;
-const SPEED_PERSISTENCE : f32 = 0.9;
+const SPEED_PERSISTENCE_BEGIN : f32 = 0.9;
+const SPEED_PERSISTENCE_END : f32 = 0.4;
 const G_BEST_ATTRACT : f32 = 2.0;
 const SELF_BEST_ATTRACT : f32 = 2.0;
 
@@ -17,14 +21,15 @@ pub struct Swarm {
     best_pos : Vec<f32>,
     best_part : usize,
     best_time : usize,
+    speed_persistence : f32,
 }
 
 impl Swarm {
-    pub fn random(size : usize, j : &Jobs) -> Swarm {
+    pub fn random(j : &Jobs) -> Swarm {
         let mut best_part = 0;
         let mut best_pos = Vec::new();
         let mut best_time = MAX;
-        let particles = (0..size).map(|i| {
+        let particles = (0..PARTICLES).map(|i| {
             let p = Particle::random(j);
             if p.best_end_time() < best_time {
                 best_part = i;
@@ -33,8 +38,16 @@ impl Swarm {
             }; 
             p
         }).collect();
-        let s = Swarm {particles, best_pos, best_part, best_time};
+        let s = Swarm {particles, best_pos, best_part, best_time, speed_persistence : SPEED_PERSISTENCE_BEGIN};
         return s
+    }
+
+    pub fn run(&mut self, jobs : &Jobs) {
+        for i in 0..GENERATIONS {
+            self.speed_persistence = ((GENERATIONS-i) as f32*SPEED_PERSISTENCE_BEGIN + i as f32*SPEED_PERSISTENCE_END)/GENERATIONS as f32;
+            self.step(jobs);
+            println!("Gen {} : {}", i + 1, self.best_time());
+        }
     }
 
     pub fn step(&mut self, j : &Jobs) {
@@ -42,7 +55,7 @@ impl Swarm {
             let mut tmp_best_pos = self.best_pos.clone();
             let mut tmp_best_time = self.best_time;
             let mut tmp_best_part = self.best_part;
-            let new_p_best = self.particles[i].step(j, &self.best_pos);
+            let new_p_best = self.particles[i].step(j, &self.best_pos, self.speed_persistence);
             if new_p_best < tmp_best_time {
                 tmp_best_part = i;
                 tmp_best_time = new_p_best;
@@ -91,11 +104,11 @@ impl Particle {
         return s.end_time()
     }
 
-    fn step(&mut self, j : &Jobs, g_pos : &Vec<f32>) -> usize {
+    fn step(&mut self, j : &Jobs, g_pos : &Vec<f32>, s_p : f32) -> usize {
         let mut rng = thread_rng();
         self.speed = izip!(self.speed.iter(), self.pos.iter(), self.self_best_pos.iter(), g_pos.iter()).map(|(&sp, &p, &s_b_p, &b_p)| {
             let (rd1, rd2) = (rng.gen_range(0.0, 1.0), rng.gen_range(0.0, 1.0));
-            minf(maxf(SPEED_PERSISTENCE * sp + SELF_BEST_ATTRACT * rd1 * (s_b_p - p) + G_BEST_ATTRACT * rd2 * (b_p - p), -SPAN), SPAN)
+            minf(maxf(s_p * sp + SELF_BEST_ATTRACT * rd1 * (s_b_p - p) + G_BEST_ATTRACT * rd2 * (b_p - p), -SPAN), SPAN)
         }).collect();
         self.pos = izip!(self.pos.iter(), self.speed.iter()).map(|(&p, &s)| p + s).collect();
         let new_time = self.eval(j);
